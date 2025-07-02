@@ -1,0 +1,1 @@
+java -ea --enable-preview --module-path ./lib/ --add-modules "javafx.controls,javafx.fxml" -cp ./bin/ Main
