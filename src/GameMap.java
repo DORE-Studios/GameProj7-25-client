@@ -10,13 +10,13 @@ import com.google.gson.JsonSyntaxException;
  * 
  * The map is a 2D grid of cells, loaded from a json file. 
  */
-public class Map {
+public class GameMap {
     
     private static String MAP_FILENAME = "./bin/MAP_DATA.json";
 
     private Cell[][] cellGrid;
 
-    public Map () {
+    public GameMap () {
         cellGrid = loadMapFromJson();
     }
 
@@ -39,7 +39,7 @@ public class Map {
             for (CellData[] row : data) {
                 if (row.length != rowSize) {
                     // Raise exception - to do later LMAO
-                    
+                    throw new IllegalStateException("Invalid map file, row of invalid size found...");
                 }
             }
 
