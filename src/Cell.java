@@ -5,6 +5,9 @@
  * faction, and can have a landmark present in the cell.
  */
 public class Cell {
+
+    private int x;
+    private int y;
     
     private final boolean[] environmentFlags = new boolean[4];
     private final Faction faction;
@@ -24,6 +27,19 @@ public class Cell {
             this.landmark = null;
         }
 
+    }
+
+    public void setPosition (int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public int getX () {
+        return x;
+    }
+
+    public int getY () {
+        return y;
     }
 
     /**
