@@ -28,17 +28,70 @@ public final class GUIManager
 
     public void drawGrid()
     {
-        gc.setFill(Color.BLACK);
-		// draw grids 
-		for(int j = 0; j < Main.TITLES; j++){
-			for(int i = 0; i < Main.TITLES; i++){
-			
-			gc.strokeLine(i * Main.TITLE_WIDTH, Main.offset/2 + Main.TITLE_HEIGHT/2 + j * Main.TITLE_HEIGHT, Main.TITLE_WIDTH/2 + i * Main.TITLE_WIDTH, Main.offset/2 + j * Main.TITLE_HEIGHT);
-			gc.strokeLine(Main.TITLE_WIDTH/2 + i * Main.TITLE_WIDTH, Main.offset/2 + j * Main.TITLE_HEIGHT, Main.TITLE_WIDTH + i * Main.TITLE_WIDTH, Main.offset/2 + Main.TITLE_HEIGHT/2 + j * Main.TITLE_HEIGHT);
-			gc.strokeLine(i * Main.TITLE_WIDTH, Main.offset/2 + Main.TITLE_HEIGHT/2 + j * Main.TITLE_HEIGHT, Main.TITLE_WIDTH/2 + i * Main.TITLE_WIDTH, Main.offset/2 + Main.TITLE_HEIGHT + j * Main.TITLE_HEIGHT);
-			gc.strokeLine(Main.TITLE_WIDTH/2 + i * Main.TITLE_WIDTH, Main.offset/2 + Main.TITLE_HEIGHT + j * Main.TITLE_HEIGHT, Main.TITLE_WIDTH + i * Main.TITLE_WIDTH, Main.offset/2 + Main.TITLE_HEIGHT/2 + j * Main.TITLE_HEIGHT);
 
-			}
-		}
+        GameMap map = new GameMap();
+
+        double gridAngleDeg = 30.0;
+        double tileHorizontalWidth = 100;
+
+        double xCenter = Main.SCREEN_WIDTH / 2.0;
+		double yCenter = Main.SCREEN_HEIGHT / 2.0;
+		
+		double gridAngleRad = (gridAngleDeg / 180.0) * Math.PI;
+		double tileHalfWidth = tileHorizontalWidth / 2.0;
+        double tan = Math.tan(gridAngleRad);
+		double tileHalfHeight = tan * tileHalfWidth;
+		
+        Cell centerCell = map.getCellAtPosition(9, 5);
+		ArrayList<Cell> cellsToRender = new ArrayList<>();
+        Set<Cell> alreadyRendered = new HashSet<>();
+		cellsToRender.add(centerCell);
+
+        while (!cellsToRender.isEmpty()) {
+            
+            Cell renderCell = cellsToRender.get(0);
+            cellsToRender.remove(0);
+            alreadyRendered.add(renderCell);
+            
+            double cellDifX = renderCell.getX() - centerCell.getX();
+            double cellDifY = renderCell.getY() - centerCell.getY();
+
+            double cellCenterX = xCenter + (cellDifX + cellDifY) * tileHalfWidth;
+            double cellCenterY = yCenter + (cellDifY - cellDifX) * tileHalfHeight;
+
+            // Check if cell is out of bounds and should not be rendered
+            if (cellCenterX < (0 - tileHalfWidth)) continue;
+            if (cellCenterX > (Main.SCREEN_WIDTH + tileHalfWidth)) continue;
+            if (cellCenterY < (0 - tileHalfHeight)) continue;
+            if (cellCenterY > (Main.SCREEN_HEIGHT + tileHalfHeight)) continue;
+
+            drawTileBorder(gc, cellCenterX, cellCenterY, tileHalfWidth, tileHalfHeight);
+            
+            for (Cell neighborCell : map.getNeighboringCells(renderCell, true)) {
+                if (alreadyRendered.contains(neighborCell) || cellsToRender.contains(neighborCell)) continue;
+                cellsToRender.add(neighborCell);
+            }
+
+        }
+
     }
+
+    public void drawTileBorder(GraphicsContext gc, double xCenter, double yCenter, double tileHalfWidth, double tileHalfHeight) {
+
+		double x1 = xCenter + tileHalfWidth;
+		double y1 = yCenter;
+		double x2 = xCenter;
+		double y2 = yCenter + tileHalfHeight;
+		double x3 = xCenter - tileHalfWidth;
+		double y3 = yCenter;
+		double x4 = xCenter;
+		double y4 = yCenter - tileHalfHeight;
+
+		gc.setFill(Color.BLACK);
+		gc.strokeLine(x1, y1, x2, y2);
+		gc.strokeLine(x2, y2, x3, y3);
+		gc.strokeLine(x3, y3, x4, y4);
+		gc.strokeLine(x4, y4, x1, y1);
+
+	}
 }

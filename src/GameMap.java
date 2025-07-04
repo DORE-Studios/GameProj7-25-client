@@ -48,6 +48,7 @@ public class GameMap {
             for (int y = 0; y < data.length; y++) {
                 for (int x = 0; x < rowSize; x++){
                     cells[y][x] = new Cell(data[y][x]);
+                    cells[y][x].setPosition(x, y);
                 }
             }
             
@@ -74,6 +75,29 @@ public class GameMap {
             return null;
         }
         return cellGrid[y][x];
+    }
+
+    public Set<Cell> getNeighboringCells (Cell cell, boolean includeDiagonals) {
+
+        int cellX = cell.getX();
+        int cellY = cell.getY();
+        if (getCellAtPosition(cell.getX(), cell.getY()) != cell) return null;
+
+        Set<Cell> neighboringCells = new HashSet<>();
+        
+        for (int x = -1; x <= 1; x++) {
+            for (int y = -1; y <= 1; y++) {
+                if (x == 0 && y == 0) continue;
+                if (includeDiagonals && x != 0 && y != 0) continue;
+                Cell cellAtPos = getCellAtPosition(x + cellX, y + cellY);
+                if (cellAtPos != null) {
+                    neighboringCells.add(cellAtPos);
+                }
+            }
+        }
+
+        return neighboringCells;
+
     }
 
 }
