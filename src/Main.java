@@ -18,14 +18,16 @@ public class Main extends Application
 {
 	private static Timer gameLoopTimer;
 	private static long gameTick = 0;
-	private final int SCREEN_WIDTH = 640; 
-	private final int SCREEN_HEIGHT = 480;
-	private final int TITLES = 10; //number of titles 
-	private final int HORIZONTAL_TITLES = SCREEN_WIDTH/2; //divide by 2 cus of 2 pixels across and 1 pixel up
-	private final int offset = SCREEN_HEIGHT - HORIZONTAL_TITLES; //offset for the grids on the middle of the screen
-	private final int TITLE_WIDTH = SCREEN_WIDTH/TITLES;
-	private final int TITLE_HEIGHT = HORIZONTAL_TITLES/TITLES;
-	
+	private static GUIManager guiManager;
+
+	public static final int SCREEN_WIDTH = 640;
+	public static final int SCREEN_HEIGHT = 480;
+	public static final int TITLES = 10; //number of titles 
+	public static final int HORIZONTAL_TITLES = SCREEN_WIDTH / 2; //divide by 2 cus of 2 pixels across and 1 pixel up
+	public static final int offset = SCREEN_HEIGHT - HORIZONTAL_TITLES; //offset for the grids on the middle of the screen
+	public static final int TITLE_WIDTH = SCREEN_WIDTH / TITLES;
+	public static final int TITLE_HEIGHT = HORIZONTAL_TITLES / TITLES;
+
 
 	public static void main(String[] args)
 	{
@@ -43,25 +45,14 @@ public class Main extends Application
 		primaryStage.setResizable(false);
 		primaryStage.centerOnScreen();
 
-		
+
 		Group root = new Group();
 		Canvas canvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 		GraphicsContext gc = canvas.getGraphicsContext2D();
+		guiManager = new GUIManager(gc);
 
-		gc.setFill(Color.BLACK);
-		// draw grids 
-		for(int j = 0; j < TITLES; j++){
-			for(int i = 0; i < TITLES; i++){
-			
-			gc.strokeLine(i * TITLE_WIDTH, offset/2 + TITLE_HEIGHT/2 + j * TITLE_HEIGHT, TITLE_WIDTH/2 + i * TITLE_WIDTH, offset/2 + j * TITLE_HEIGHT);
-			gc.strokeLine(TITLE_WIDTH/2 + i * TITLE_WIDTH, offset/2 + j * TITLE_HEIGHT, TITLE_WIDTH + i * TITLE_WIDTH, offset/2 + TITLE_HEIGHT/2 + j * TITLE_HEIGHT);
-			gc.strokeLine(i * TITLE_WIDTH, offset/2 + TITLE_HEIGHT/2 + j * TITLE_HEIGHT, TITLE_WIDTH/2 + i * TITLE_WIDTH, offset/2 + TITLE_HEIGHT + j * TITLE_HEIGHT);
-			gc.strokeLine(TITLE_WIDTH/2 + i * TITLE_WIDTH, offset/2 + TITLE_HEIGHT + j * TITLE_HEIGHT, TITLE_WIDTH + i * TITLE_WIDTH, offset/2 + TITLE_HEIGHT/2 + j * TITLE_HEIGHT);
+		guiManager.drawGrid();
 
-			}
-		}
-		
-		
 		root.getChildren().add(canvas);
 		Scene scene = new Scene(root);
 
