@@ -2,6 +2,7 @@ public class Weapon extends Module{
     private int accuracy, shots;
     private boolean shieldEffective;
     protected int min, max;
+    private Crew crew;
 
     public Weapon(int accuracy, boolean bool, int min, int max, int shots){
         this.accuracy = accuracy;
@@ -50,6 +51,16 @@ public class Weapon extends Module{
                     S.takeDamage(shieldEffective, dmg);
                 }
             }
+        }
+    }
+
+    public void addCrew(Crew crew){
+        this.crew = crew;
+    }
+
+    public void removeCrew(Crew crew){
+        if(this.crew == crew){
+            this.crew = null;
         }
     }
 }
