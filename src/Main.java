@@ -1,5 +1,7 @@
 import java.awt.*;
+import java.io.IOException;
 import java.util.*;
+import java.net.*;
 
 import javafx.application.*;
 import javafx.scene.*;
@@ -36,6 +38,7 @@ public class Main extends Application
 		// Startup JavaFX GUI
 		launch();
 		System.out.println("Fin.");
+		System.exit(0)
 	}
 
 	@Override
@@ -80,5 +83,15 @@ public class Main extends Application
 	{
 		System.out.println("Tick: " + gameTick);
 		gameTick++;
+		try
+		{
+			Socket socket = new Socket(InetAddress.getByName(null), 8051);
+
+			socket.close();
+		}
+		catch(IOException e)
+		{
+			//Can't connect
+		}
 	}
 }
