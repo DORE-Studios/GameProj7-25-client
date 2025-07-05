@@ -100,4 +100,13 @@ public class GameMap {
 
     }
 
+    public int getMapCellWidth () {
+        if (cellGrid.length == 0) return 0; 
+        return cellGrid[0].length;
+    }
+
+    public int getMapCellHeight () {
+        return cellGrid.length;
+    }
+
 }
