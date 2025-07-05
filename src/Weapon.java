@@ -3,6 +3,7 @@ public class Weapon extends Module{
     private boolean shieldEffective;
     protected int min, max;
     private Crew crew;
+    private boolean isCrewed;
 
     public Weapon(int accuracy, boolean bool, int min, int max, int shots){
         this.accuracy = accuracy;
@@ -10,6 +11,7 @@ public class Weapon extends Module{
         this.shots = shots;
         this.min = min;
         this.max = max;
+        this.isCrewed = false;
     }
 
     /* if it will hit 100% of the time -> 2
@@ -38,6 +40,9 @@ public class Weapon extends Module{
      * will roll hit chance if accuracy is lower than evasion
      */
     public void attack(Ship S){
+        if(!isCrewed){
+            return;
+        }
         int dmg;
         if(does_hit(S.getEvasion()) == 2){
             for(int i = 0; i < shots; i++){
@@ -56,12 +61,18 @@ public class Weapon extends Module{
 
     public void addCrew(Crew crew){
         this.crew = crew;
+        this.isCrewed = true;
     }
 
     public void removeCrew(Crew crew){
         if(this.crew == crew){
             this.crew = null;
+            this.isCrewed = false;
         }
+    }
+
+    public boolean isCrewed(){
+        return isCrewed;
     }
 }
 

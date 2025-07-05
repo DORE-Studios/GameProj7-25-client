@@ -11,9 +11,9 @@ public class Ship{
 
     // Ship stats as records
     private static final java.util.Map<ShipType, ShipStats> SHIP_STATS = new HashMap<>();{
-        SHIP_STATS.put(ShipType.RECON, new ShipStats("Recon", 1, 10, 40, 750, 75, 4, 900, 600, 800, 0, 0.0));
-        SHIP_STATS.put(ShipType.CARGO, new ShipStats("Combat", 3, 10, 30, 800, 100, 6, 1200, 800, 1200, 0, 0.0));
-        SHIP_STATS.put(ShipType.COMBAT, new ShipStats("Cargo", 4, 10, 20, 1200, 125, 8, 1500, 1200, 1800, 0, 0.0));
+        SHIP_STATS.put(ShipType.RECON, new ShipStats("Recon", 1, 10, 40, 750, 75, 3, 900, 600, 800, 0, 0.0));
+        SHIP_STATS.put(ShipType.CARGO, new ShipStats("Combat", 3, 10, 30, 800, 100, 5, 1200, 800, 1200, 0, 0.0));
+        SHIP_STATS.put(ShipType.COMBAT, new ShipStats("Cargo", 4, 10, 20, 1200, 125, 7, 1500, 1200, 1800, 0, 0.0));
         SHIP_STATS.put(ShipType.BIO, new ShipStats("Bio", 6, 10, 30, 000, 0, 0, 0, 0, 3000, 0, 0.0));
         SHIP_STATS.put(ShipType.ROBOT, new ShipStats("Robot", 2, 10, 30, 1600, 150, 0, 2100, 1600, 1600, 0, 0.0));
     }
@@ -21,7 +21,6 @@ public class Ship{
     //the variables:
     private ShipType shipType;
     private ShipStats stats = SHIP_STATS.get(shipType);
-    private int crew;          //
     private double storage;    //tbd
     private int fuel_tank;     //
     private int shield_health; //
@@ -36,11 +35,11 @@ public class Ship{
     private java.util.Map<Item.ItemType, Integer> itemsInStorage = new HashMap<>();{
         itemsInStorage.put(Item.ItemType.FOOD, 0);
     }
+    private java.util.List<Crew> shipCrew = new ArrayList<>();
 
     //constructor
     public Ship(ShipType ST){
         this.shipType = ST;
-        this.crew = stats.crewCapacity == 0 ? 0 : 2;
         this.storage = 0;                                   //tbd
         this.fuel_tank = stats.initialFuel();
         this.shield_health = stats.shieldCapacity();
@@ -49,6 +48,9 @@ public class Ship{
         this.weaponCount = 0;
         this.fuel_tank_capacity = stats.fuelTankCapacity();;
         this.storage_capacity = stats.storageCapacity();
+        if(stats.crewCapacity != 0){
+            shipCrew.add(new Crew());
+        }
     }
 
 
@@ -58,6 +60,7 @@ public class Ship{
 
     //to shoot at the enemy :)
     public void shootAt(Ship S, Weapon wpn){
+        if(!wpn.isCrewed()){return;}
         if(wpn instanceof EMP){
             wpn.attack(this);
         }
@@ -194,6 +197,71 @@ public class Ship{
     }
 
     /* FUEL & STORAGE FUNCTIONS END */
+
+
+    /*
+     * Crew FUNCTIONS
+     */
+
+    //returns the number of crew that are not assigned a station
+    public int getUnemployedCount(){
+        int count = 0;
+        for(Crew c: shipCrew){
+            if(c.getStation() == null){
+                count++;
+            }
+        }
+        return count;
+    }
+
+    //adds a crew to the ship :)
+    public void addCrewToShip(Crew c){
+        shipCrew.add(c);
+    }
+
+    //removes a crew from the ship :(
+    public void removeCrewFromShip(Crew c){
+        shipCrew.remove(c);
+    }
+
+    //returns the amount of crew in the ship
+    public int getCrewCount(){
+        return shipCrew.size();
+    }
+
+    public void assignCrew(Crew c, Module m){
+        if(m instanceof Weapon && c.getStation() == null){
+            Weapon w = (Weapon) m;
+            if(!w.isCrewed()){
+                w.addCrew(c);
+                c.addToStation(w);
+            }
+        }else if(m instanceof ShieldGenerator){
+            ShieldGenerator sg = (ShieldGenerator) m;
+            if(!sg.isCrewed()){
+                sg.addCrew(c);
+                c.addToStation(sg);
+            }
+        }
+    }
+
+    public void unassignCrew(Crew c, Module m){
+        if(m instanceof Weapon && c.getStation() == null){
+            Weapon w = (Weapon) m;
+            if(!w.isCrewed()){
+                w.removeCrew(c);
+                c.removeFromStation(w);
+            }
+        }else if(m instanceof ShieldGenerator){
+            ShieldGenerator sg = (ShieldGenerator) m;
+            if(!sg.isCrewed()){
+                sg.removeCrew(c);
+                c.removeFromStation(sg);
+            }
+        }
+    }
+
+    /* CREW FUNCTIONS END */
 
 
     /*

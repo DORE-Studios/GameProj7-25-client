@@ -56,5 +56,24 @@ class Upgrade extends Module{
 }
 
 class ShieldGenerator extends Module{
-    
+    private Crew crew;
+    private boolean isCrewed = false;;
+
+    public ShieldGenerator(){}
+
+    public void addCrew(Crew crew){
+        this.crew = crew;
+        this.isCrewed = true;
+    }
+
+    public void removeCrew(Crew crew){
+        if(this.crew == crew){
+            this.crew = null;
+            this.isCrewed = false;
+        }
+    }
+
+    public boolean isCrewed(){
+        return isCrewed;
+    }
 }

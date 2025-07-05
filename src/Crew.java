@@ -17,12 +17,18 @@ public class Crew {
 
     public void addToStation(Module m){
         if(m instanceof Weapon || m instanceof ShieldGenerator){
-            this.station = m;
+            if(this.station == null){
+                this.station = m;
+            }
         }
     }
 
-    public void removeFromStation(){
-        this.station = null;
+    public void removeFromStation(Module m){
+        if(m instanceof Weapon || m instanceof ShieldGenerator){
+            if(this.station == m){
+                this.station = null;
+            }
+        }
     }
 
     public Module getStation(){
