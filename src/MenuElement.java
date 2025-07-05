@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 /**
  * Represents a menu element in a graphical user interface. This class provides functionality for creating hierarchical menu elements, handling mouse click actions, and rendering elements with associated images.
  */
-public class MenuElement
+public abstract class MenuElement
 {
     private static final Set<MenuElement> allElements = new HashSet<>();
 
@@ -73,7 +73,12 @@ public class MenuElement
 
     public final static MenuElement newRoot()
     {
-        return new MenuElement(null, 0, 0, 0, 0, -1);
+        return new MenuElement(null, 0, 0, 0, 0, -1)
+        {
+            @Override
+            public void drawElement(GUIManager g)
+            {}
+        };
     }
 
     // public final <T extends MenuElement> T newChild(int left, int top, int width, int height, int zIndex, int imageOffsetX, int imageOffsetY, int imageWidth, int imageHeight, Path imagePath)
@@ -135,14 +140,10 @@ public class MenuElement
         return e1.zIndex - e2.zIndex;
     }
 
-    public void delete()
+    public final void delete()
     {
         allElements.remove(this);
     }
 
-    public void drawElement(GUIManager guiManager)
-    {
-        Objects.requireNonNull(guiManager);
-        // Does nothing
-    }
+    public abstract void drawElement(GUIManager guiManager);
 }
