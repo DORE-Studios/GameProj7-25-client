@@ -38,7 +38,7 @@ public class Main extends Application
 		// Startup JavaFX GUI
 		launch();
 		System.out.println("Fin.");
-		System.exit(0)
+		System.exit(0);
 	}
 
 	@Override
