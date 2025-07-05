@@ -3,7 +3,7 @@ import java.util.*;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class GameMapDrawer {
+public class GameMapDrawer extends MenuElement {
     
     private static final double gridAngleDeg = 30.0;
     private static final double cellHorizontalWidth = 100.0;
@@ -13,39 +13,47 @@ public class GameMapDrawer {
     private static final double tan = Math.tan(gridAngleRad);
 	private static final double cellHalfHeight = tan * cellHalfWidth;
 
+    private GameMap map;
+
     private Cell highlightedCell = null;
 
-    private final GUIManager guiManager;
+    private double centerCellX = 0;
+    private double centerCellY = 0;
 
-    public GameMapDrawer (GUIManager guiManager) {
-        this.guiManager = guiManager;
+    public GameMapDrawer (GameMap map) {
+        
+        super(null, 0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, 0);
+        this.map = map;
+        this.setOnClick(new GameMapClickedAction(this));
+
     }
 
-    public void drawMap (GameMap map, double centerCellX, double centerCellY) {
+    @Override
+    public void drawElement (GUIManager guiManager) {
+
+        // Clear graphics
+        // TODO: Remove once experimentation is done
+        guiManager.gc().clearRect(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
 
         // Figure out which cells to render on the screen
-        List<Cell> cellsToDraw = getCellsToDraw(map, centerCellX, centerCellY);
-        
+        List<Cell> cellsToDraw = getCellsToDraw();
+        System.out.println(cellsToDraw.size());
         for (Cell cell : cellsToDraw) {
-            double[] cellPosition = getCellCenterOnScreen(Main.SCREEN_WIDTH / 2.0, Main.SCREEN_HEIGHT / 2.0, centerCellX, centerCellY, cell.getX(), cell.getY());
+            double[] cellPosition = getCellCenterOnScreen(cell.getX(), cell.getY());
             drawTile(guiManager.gc(), cellPosition[0], cellPosition[1], Color.BLACK);
         }
 
         if (highlightedCell != null) {
             if (cellsToDraw.contains(highlightedCell)) {
-                double[] cellPosition = getCellCenterOnScreen(Main.SCREEN_WIDTH / 2.0, Main.SCREEN_HEIGHT / 2.0, centerCellX, centerCellY, highlightedCell.getX(), highlightedCell.getY());
+                double[] cellPosition = getCellCenterOnScreen(highlightedCell.getX(), highlightedCell.getY());
                 drawTile(guiManager.gc(), cellPosition[0], cellPosition[1], Color.YELLOW);
             }
         }
-        
     }
 
-    public void highlightCell (GameMap map, double clickX, double clickY) {
+    public void highlightCell (double clickX, double clickY) {
 
-        System.out.println(clickX);
-        System.out.println(clickY);
-
-        double[] cellClickPos = getCellPositionAtScreenPosition(Main.SCREEN_WIDTH / 2.0, Main.SCREEN_HEIGHT / 2.0, clickX, clickY, 0, 0);
+        double[] cellClickPos = getCellPositionAtScreenPosition(clickX, clickY, centerCellX, centerCellY);
 
         System.out.println(cellClickPos[0]);
         System.out.println(cellClickPos[1]);
@@ -53,16 +61,13 @@ public class GameMapDrawer {
         Cell cell = map.getCellAtPosition((int) Math.round(cellClickPos[0]), (int) Math.round(cellClickPos[1]));
         highlightedCell = cell;
 
-        drawMap(map, 0, 0);
-
+        if (cell == null) return;
+        
     }
 
-    public List<Cell> getCellsToDraw (GameMap map, double centerCellX, double centerCellY) {
+    public List<Cell> getCellsToDraw () {
 
         ArrayList<Cell> result = new ArrayList<>();
-
-        double xCenter = Main.SCREEN_WIDTH / 2.0;
-		double yCenter = Main.SCREEN_HEIGHT / 2.0;
 
         int closestToCenterCellX = (int) Math.round(centerCellX);
         int closestToCenterCellY = (int) Math.round(centerCellY);
@@ -80,7 +85,7 @@ public class GameMapDrawer {
             alreadyRendered.add(renderCell);;
 
             // Check if cell is out of bounds and should not be rendered
-            double[] renderCellPosition = getCellCenterOnScreen(xCenter, yCenter, centerCellX, centerCellY, renderCell.getX(), renderCell.getY());
+            double[] renderCellPosition = getCellCenterOnScreen(renderCell.getX(), renderCell.getY());
             if (!isCenterOnScreen(renderCellPosition[0], renderCellPosition[1])) continue;
 
             result.add(renderCell);
@@ -95,12 +100,12 @@ public class GameMapDrawer {
 
     }
 
-    public double[] getCellPositionAtScreenPosition (double x, double y, double screenCenterX, double screenCenterY, double centerCellX, double centerCellY) {
+    public double[] getCellPositionAtScreenPosition (double x, double y, double centerCellX, double centerCellY) {
 
         double[] cellPosition = new double[2];
 
-        double xFromCenter = screenCenterX - x;
-        double yFromCenter = screenCenterY - y;
+        double xFromCenter = x - (width() / 2);
+        double yFromCenter = y - (height() / 2);
 
         cellPosition[0] = centerCellX + (((xFromCenter / cellHalfWidth) - (yFromCenter / cellHalfHeight)) / 2);
         cellPosition[1] = centerCellY + (((xFromCenter / cellHalfWidth) + (yFromCenter / cellHalfHeight)) / 2);
@@ -109,15 +114,15 @@ public class GameMapDrawer {
 
     }
 
-    public double[] getCellCenterOnScreen (double screenCenterX, double screenCenterY, double centerCellX, double centerCellY, int cellX, int cellY) {
+    public double[] getCellCenterOnScreen (int cellX, int cellY) {
 
         double[] cellCenterOnScreen = new double[2];
 
         double cellDifX = cellX - centerCellX;
         double cellDifY = cellY - centerCellY;
 
-        cellCenterOnScreen[0] = screenCenterX + (cellDifX + cellDifY) * cellHalfWidth;
-        cellCenterOnScreen[1] = screenCenterY + (cellDifY - cellDifX) * cellHalfHeight;
+        cellCenterOnScreen[0] = (width() / 2) + (cellDifX + cellDifY) * cellHalfWidth;
+        cellCenterOnScreen[1] = (height() / 2) + (cellDifY - cellDifX) * cellHalfHeight;
 
         return cellCenterOnScreen;
 
@@ -144,9 +149,9 @@ public class GameMapDrawer {
 
     public boolean isCenterOnScreen (double x, double y) {
 
-        if (x > Main.SCREEN_WIDTH + cellHalfWidth) return false;
+        if (x > width() + cellHalfWidth) return false;
         if (x < -cellHalfWidth) return false;
-        if (y > Main.SCREEN_HEIGHT + cellHalfHeight) return false;
+        if (y > height() + cellHalfHeight) return false;
         if (y < -cellHalfHeight) return false;
         return true;
 

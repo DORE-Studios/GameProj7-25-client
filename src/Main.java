@@ -59,10 +59,15 @@ public class Main extends Application
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
-		guiManager.drawGrid();
-
 		// scene.setOnKeyPressed(Main::keypressEventHandler);
-		// scene.setOnMouseReleased(Program::mouseEventHandler);
+
+		GameMap map = new GameMap();
+        GameMapDrawer mapDrawer = new GameMapDrawer(map);
+        MenuElement.drawAll(guiManager);
+		
+		// Setting up menu elements
+		// TODO: Zach please set this up more robustly later thank you - euan
+		scene.setOnMouseReleased(this::onMouseRelease);
 
 		gameTick = 0;
 		TimerTask loopTask = new TimerTask()
@@ -77,6 +82,11 @@ public class Main extends Application
 		gameLoopTimer.schedule(loopTask, 250, 250);
 
 		System.out.println("Init Success");
+	}
+
+	private void onMouseRelease (MouseEvent mouseEvent) {
+		MenuElement.processMouseClick("released", (int) mouseEvent.getSceneX(), (int) mouseEvent.getSceneY());
+		MenuElement.drawAll(guiManager);
 	}
 
 	private void gameLoop(Stage gameStage, GraphicsContext gc)
