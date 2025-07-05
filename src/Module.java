@@ -53,4 +53,8 @@ class Upgrade extends Module{
     public int getEvasionBoost(){
         return stats.evasionBoost();
     }
-}//fgh
+}
+
+class ShieldGenerator extends Module{
+    
+}
