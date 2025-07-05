@@ -11,6 +11,8 @@ public class Weapon extends Module{
         this.max = max;
     }
 
+    /* if it will hit 100% of the time -> 2
+     * if it hit ->1    if it missed ->0    */
     private int does_hit(int evasion){
         int chance = (int)(Math.random()*100)+1;
         if(accuracy > evasion){
@@ -22,6 +24,7 @@ public class Weapon extends Module{
         }
     }
 
+    //determines how much damage will be dealt
     private int roll_dmg(){
         if(min == max){
             return min;
@@ -30,6 +33,9 @@ public class Weapon extends Module{
         }
     }
 
+    /* doesn't roll hit chance for every bullet if accuracy is higher than evasion
+     * will roll hit chance if accuracy is lower than evasion
+     */
     public void attack(Ship S){
         int dmg;
         if(does_hit(S.getEvasion()) == 2){

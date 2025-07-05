@@ -28,9 +28,14 @@ public class Ship{
     private int health;        //
     private int currency;      //
     private int x = 0, y = 0;  //position >:-)
-    private int armour;
-    private Module[] modules = new Module[5];
+    private int armourLevel;
     private int weaponCount;
+    private int fuel_tank_capacity;
+    private double storage_capacity;
+    private Module[] modules = new Module[5];
+    private java.util.Map<Item.ItemType, Integer> itemsInStorage = new HashMap<>();{
+        itemsInStorage.put(Item.ItemType.FOOD, 0);
+    }
 
     //constructor
     public Ship(ShipType ST){
@@ -40,9 +45,16 @@ public class Ship{
         this.fuel_tank = stats.initialFuel();
         this.shield_health = stats.shieldCapacity();
         this.health = stats.maxHealth();
-        this.armour = stats.initialArmour();
+        this.armourLevel = stats.initialArmour();
         this.weaponCount = 0;
+        this.fuel_tank_capacity = stats.fuelTankCapacity();;
+        this.storage_capacity = stats.storageCapacity();
     }
+
+
+    /*
+     * EVERYTHING TO DO WITH HEALTH, SHIELD, DAMAGE, ETC
+     */
 
     //to shoot at the enemy :)
     public void shootAt(Ship S, Weapon wpn){
@@ -55,11 +67,6 @@ public class Ship{
     //the enemy has shot at you :(
     public void shotAt(Weapon wpn){ //not to be confused with "shootAt()"
         wpn.attack(this);
-    }
-
-    //returns evasion
-    public int getEvasion(){
-        return stats.evasion();
     }
 
     //returns shield health
@@ -83,7 +90,7 @@ public class Ship{
     //the hull is taking damage
     private void reduceHealth(int damage){
         int reducedDamage;
-        reducedDamage = (int)((damage*((this.armour) * 0.05))-this.armour);
+        reducedDamage = (int)((damage*((this.armourLevel) * 0.05))-this.armourLevel);
         this.health -= reducedDamage;
     }
 
@@ -110,6 +117,104 @@ public class Ship{
         reduceHealth(damage);
     }
 
+    /* HEALTH, SHIELD, DAMAGE, ETC FUNCTIONS END */
+
+
+    /* 
+     * EVERYTHING TO DO WITH THE FUEL AND CARGO
+    */
+
+    //returns max storage capacity
+    private double getStorageCapacity(){
+        double tot = stats.storageCapacity();
+        for(Module m: modules){
+            if(m instanceof Upgrade){
+                Upgrade u = (Upgrade) m;
+                Upgrade.UpgradeType ut = u.getType();
+                if(ut == Upgrade.UpgradeType.STORAGE){
+                    tot += u.getStorageBoost();
+                }
+            }
+        }
+        return tot;
+    }
+
+    //to add cargo
+    public void addCargo(Item item){
+        double weight = item.getItemWeight();
+        int count = itemsInStorage.get(item.getItemType());
+        if((this.storage + weight) > this.storage_capacity){
+            return;
+        }else{
+            this.storage += weight;
+            itemsInStorage.put(item.getItemType(), count+1);
+        }
+    }
+
+    //to remove cargo
+    public void removeCargo(Item item){
+        int count = itemsInStorage.get(item.getItemType());
+        if(count == 0){
+            return;
+        }else{
+            itemsInStorage.put(item.getItemType(), count-1);
+        }
+        double weight = item.getItemWeight();
+        this.storage -= weight;
+        if(this.storage < 0){
+            this.storage = 0;
+        }
+    }
+
+    //returns max fuel tank capacity
+    private int getFuelCapacity(){
+        int tot = stats.fuelTankCapacity();
+        for(Module m: modules){
+            if(m instanceof Upgrade){
+                Upgrade u = (Upgrade) m;
+                Upgrade.UpgradeType ut = u.getType();
+                if(ut == Upgrade.UpgradeType.FUEL){
+                    tot += u.getFuelBoost();
+                }
+            }
+        }
+        return tot;
+    }
+
+    //refuel the ship
+    public void refuel(){
+        if(fuel_tank == fuel_tank_capacity){
+            return;
+        }else{
+            fuel_tank += 50;
+            if(fuel_tank > fuel_tank_capacity){
+                fuel_tank = fuel_tank_capacity;
+            }
+        }
+    }
+
+    /* FUEL & STORAGE FUNCTIONS END */
+
+
+    /*
+     * OTHER FUNCTIONS
+     */
+    
+    //returns evasion
+    public int getEvasion(){
+        int tot = stats.evasion();
+        for(Module m: modules){
+            if(m instanceof Upgrade){
+                Upgrade u = (Upgrade) m;
+                Upgrade.UpgradeType ut = u.getType();
+                if(ut == Upgrade.UpgradeType.THRUSTER){
+                    tot += u.getEvasionBoost();
+                }
+            }
+        }
+        return tot;
+    }
+
     //to add a module to the ship
     public void addModule(Module toAdd){
         if((toAdd instanceof Weapon) && (weaponCount >= 3)){
@@ -124,6 +229,10 @@ public class Ship{
                 break;
             }
         }
+        if(toAdd instanceof Upgrade){
+            fuel_tank_capacity = getFuelCapacity();
+            storage_capacity = getStorageCapacity();
+        }
     }
 
     //to remove a module from the ship
@@ -133,6 +242,10 @@ public class Ship{
                 m = null;
                 break;
             }
+        }
+        if(toRemove instanceof Upgrade){
+            fuel_tank_capacity = getFuelCapacity();
+            storage_capacity = getStorageCapacity();
         }
     }
 }
