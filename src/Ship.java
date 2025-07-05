@@ -237,6 +237,17 @@ public class Ship{
 
     //removes a crew from the ship :(
     public void removeCrewFromShip(Crew c){
+        Module m = c.getStation();
+        if(m != null){
+            if(m instanceof Weapon){
+                Weapon W = (Weapon)m;
+                W.removeCrew(c);
+            }else{
+                ShieldGenerator sg = (ShieldGenerator)m;
+                sg.removeCrew(c);
+            }
+            c.removeFromStation(m);
+        }
         shipCrew.remove(c);
     }
 
@@ -273,6 +284,33 @@ public class Ship{
             if(!sg.isCrewed()){
                 sg.removeCrew(c);
                 c.removeFromStation(sg);
+            }
+        }
+    }
+
+    //makes sure that there is no more or less than 1 captain
+    //if less than 1, promote a crew to captain :)
+    //if more than 1, remove a captain forcefully
+    public void captainCheck(){
+        List<Crew> Captains = new ArrayList<>();
+        for(Crew c: shipCrew){
+            if(c.isCaptain()){
+                Captains.add(c);
+            }
+        }
+        if(Captains.size() == 0){
+            shipCrew.get(0).makeCaptain();
+        }else if(Captains.size() > 1){
+            mutiny(Captains);
+        }
+    }
+
+    //removes all captains from ship until there is only 1 :))
+    private void mutiny(List<Crew> Captains){
+        int chosenOne = (int)Math.random()*Captains.size();
+        for(Crew c: Captains){
+            if(Captains.indexOf(c) != chosenOne){
+                removeCrewFromShip(c);
             }
         }
     }

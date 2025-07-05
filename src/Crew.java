@@ -17,6 +17,14 @@ public class Crew {
         return firstName+" "+lastName;
     }
 
+    public boolean isCaptain(){
+        return isCaptain;
+    }
+
+    public void makeCaptain(){
+        isCaptain = true;
+    }
+
     public void addToStation(Module m){
         if(m instanceof Weapon || m instanceof ShieldGenerator){
             if(this.station == null){
