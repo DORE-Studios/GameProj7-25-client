@@ -138,7 +138,7 @@ public class Ship{
         }
         return tot;
     }
-
+    //fgh
     //to add cargo
     public void addCargo(Item item){
         double weight = item.getItemWeight();
@@ -199,7 +199,7 @@ public class Ship{
     /*
      * OTHER FUNCTIONS
      */
-    
+
     //returns evasion
     public int getEvasion(){
         int tot = stats.evasion();

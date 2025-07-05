@@ -109,7 +109,7 @@ class Microwave_Ray extends Weapon{
         super(20, true, 6, 6, 40);
     }
 }
-
+//fgh
 class Hard_Light_Cannon extends Weapon{
     public Hard_Light_Cannon(){
         super(30, true, 400, 400, 1);
