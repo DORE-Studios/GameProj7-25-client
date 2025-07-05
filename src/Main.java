@@ -44,25 +44,25 @@ public class Main extends Application
 	@Override
 	public void start(Stage primaryStage) throws Exception
 	{
+		// Window settings
 		primaryStage.setTitle("GameProj7-25");
 		primaryStage.setResizable(false);
 		primaryStage.centerOnScreen();
 
-
+		// Canvas setup, we basically just do everything on the one canvas' graphics context
 		Group root = new Group();
 		Canvas canvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		guiManager = new GUIManager(gc);
+		root.getChildren().add(canvas);
+		Scene scene = new Scene(root);
+		primaryStage.setScene(scene);
+		primaryStage.show();
 
 		guiManager.drawGrid();
 
-		root.getChildren().add(canvas);
-		Scene scene = new Scene(root);
-
 		// scene.setOnKeyPressed(Main::keypressEventHandler);
 		// scene.setOnMouseReleased(Program::mouseEventHandler);
-		primaryStage.setScene(scene);
-		primaryStage.show();
 
 		gameTick = 0;
 		TimerTask loopTask = new TimerTask()
