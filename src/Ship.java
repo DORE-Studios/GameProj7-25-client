@@ -29,18 +29,22 @@ public class Ship{
     private int currency;      //
     private int x = 0, y = 0;  //position >:-)
     private int armour;
+    private Module[] modules = new Module[5];
+    private int weaponCount;
 
+    //constructor
     public Ship(ShipType ST){
-        shipType = ST;
-
+        this.shipType = ST;
         this.crew = stats.crewCapacity == 0 ? 0 : 2;
         this.storage = 0;                                   //tbd
         this.fuel_tank = stats.initialFuel();
         this.shield_health = stats.shieldCapacity();
         this.health = stats.maxHealth();
         this.armour = stats.initialArmour();
+        this.weaponCount = 0;
     }
 
+    //to shoot at the enemy :)
     public void shootAt(Ship S, Weapon wpn){
         if(wpn instanceof EMP){
             wpn.attack(this);
@@ -48,22 +52,27 @@ public class Ship{
         S.shotAt(wpn);
     }
 
+    //the enemy has shot at you :(
     public void shotAt(Weapon wpn){ //not to be confused with "shootAt()"
         wpn.attack(this);
     }
 
+    //returns evasion
     public int getEvasion(){
         return stats.evasion();
     }
 
+    //returns shield health
     public int getShield(){
         return this.shield_health;
     }
 
+    //returns hull health
     public int getHealth(){
         return this.health;
     }
 
+    //the shield is taking damage
     private void reduceShield(int damage){
         this.shield_health -= damage;
         if(this.shield_health < 0){
@@ -71,12 +80,14 @@ public class Ship{
         }
     }
 
+    //the hull is taking damage
     private void reduceHealth(int damage){
         int reducedDamage;
         reducedDamage = (int)((damage*((this.armour) * 0.05))-this.armour);
         this.health -= reducedDamage;
     }
 
+    //general method for taking damage, determines where the damage should go
     public void takeDamage(boolean SE, int damage){
         if(shield_health > 0){
             if(SE){
@@ -89,11 +100,39 @@ public class Ship{
         }
     }
 
+    //for effects that eliminate the shield entirely
     public void noShield(){
         shield_health = 0;
     }
 
+    //for things that can ignore the shield and damage the hull directly
     public void AP(int damage){
         reduceHealth(damage);
+    }
+
+    //to add a module to the ship
+    public void addModule(Module toAdd){
+        if((toAdd instanceof Weapon) && (weaponCount >= 3)){
+            return;
+        }
+        for(Module m : modules){
+            if(m == null){
+                m = toAdd;
+                if(toAdd instanceof Weapon){
+                    weaponCount++;
+                }
+                break;
+            }
+        }
+    }
+
+    //to remove a module from the ship
+    public void removeModule(Module toRemove){
+        for(Module m: modules){
+            if(m == toRemove){
+                m = null;
+                break;
+            }
+        }
     }
 }

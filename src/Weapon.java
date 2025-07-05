@@ -1,4 +1,4 @@
-public class Weapon{
+public class Weapon extends Module{
     private int accuracy, shots;
     private boolean shieldEffective;
     protected int min, max;
