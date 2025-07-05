@@ -3,7 +3,8 @@ import java.util.*;
 public class Ship{
     private final record ShipStats(String name, int initialArmour, int maxArmour, int evasion, int initialFuel,
         int fuelConsumption, int crewCapacity, int fuelTankCapacity, int shieldCapacity,
-        int maxHealth, int foodConsumption, double storageCapacity){}
+        int maxHealth, int foodConsumption, double storageCapacity, ArrayList<Module> startingMods){}
+
 
     public enum ShipType{
         RECON, CARGO, COMBAT, BIO, ROBOT
@@ -11,11 +12,16 @@ public class Ship{
 
     // Ship stats as records
     private static final java.util.Map<ShipType, ShipStats> SHIP_STATS = new HashMap<>();{
-        SHIP_STATS.put(ShipType.RECON, new ShipStats("Recon", 1, 10, 40, 750, 75, 3, 900, 600, 800, 0, 0.0));
-        SHIP_STATS.put(ShipType.CARGO, new ShipStats("Combat", 3, 10, 30, 800, 100, 5, 1200, 800, 1200, 0, 0.0));
-        SHIP_STATS.put(ShipType.COMBAT, new ShipStats("Cargo", 4, 10, 20, 1200, 125, 7, 1500, 1200, 1800, 0, 0.0));
-        SHIP_STATS.put(ShipType.BIO, new ShipStats("Bio", 6, 10, 30, 000, 0, 0, 0, 0, 3000, 0, 0.0));
-        SHIP_STATS.put(ShipType.ROBOT, new ShipStats("Robot", 2, 10, 30, 1600, 150, 0, 2100, 1600, 1600, 0, 0.0));
+        SHIP_STATS.put(ShipType.RECON, new ShipStats("Recon", 1, 10, 40, 750, 75, 3, 900, 600, 800, 0, 0.0,
+                                    new ArrayList<>(){{add(new Minigun()); add(new Upgrade(Upgrade.UpgradeType.RADAR)); add(new ShieldGenerator());}} ));
+        SHIP_STATS.put(ShipType.CARGO, new ShipStats("Combat", 3, 10, 30, 800, 100, 5, 1200, 800, 1200, 0, 0.0,
+                                    new ArrayList<>(){{add(new Minigun()); add(new Missle()); add(new ShieldGenerator());}} ));
+        SHIP_STATS.put(ShipType.COMBAT, new ShipStats("Cargo", 4, 10, 20, 1200, 125, 7, 1500, 1200, 1800, 0, 0.0,
+                                    new ArrayList<>(){{add(new Minigun()); add(new ShieldGenerator());}} ));
+        SHIP_STATS.put(ShipType.BIO, new ShipStats("Bio", 6, 10, 30, 000, 0, 0, 0, 0, 3000, 0, 0.0,
+                                    new ArrayList<>(){{}} ));
+        SHIP_STATS.put(ShipType.ROBOT, new ShipStats("Robot", 2, 10, 30, 1600, 150, 0, 2100, 1600, 1600, 0, 0.0,
+                                    new ArrayList<>(){{add(new Minigun()); add(new Upgrade(Upgrade.UpgradeType.RADAR)); add(new ShieldGenerator());}} ));
     }
 
     //the variables:
@@ -31,7 +37,7 @@ public class Ship{
     private int weaponCount;
     private int fuel_tank_capacity;
     private double storage_capacity;
-    private Module[] modules = new Module[5];
+    private java.util.List<Module> modules = new ArrayList<>();
     private java.util.Map<Item.ItemType, Integer> itemsInStorage = new HashMap<>();{
         itemsInStorage.put(Item.ItemType.FOOD, 0);
     }
@@ -49,7 +55,17 @@ public class Ship{
         this.fuel_tank_capacity = stats.fuelTankCapacity();;
         this.storage_capacity = stats.storageCapacity();
         if(stats.crewCapacity != 0){
-            shipCrew.add(new Crew());
+            shipCrew.add(new Crew(true));
+            shipCrew.add(new Crew(false));
+            if(ST == ShipType.COMBAT){
+                shipCrew.add(new Crew(false));
+            }
+        }
+        this.modules.addAll(stats.startingMods());
+        assignCrew(shipCrew.get(0), modules.get(0));
+        assignCrew(shipCrew.get(1), modules.get(1));
+        if(ST == ShipType.COMBAT){
+            assignCrew(shipCrew.get(2), modules.get(2));
         }
     }
 

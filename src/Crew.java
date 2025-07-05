@@ -5,10 +5,12 @@ public class Crew {
     private String firstName;
     private String lastName;
     private Module station;
+    private boolean isCaptain;
 
-    public Crew(){
+    public Crew(boolean isCap){
         this.firstName = GetRandomName(firstNames);
         this.lastName = GetRandomName(lastNames);
+        this.isCaptain = isCap;
     }
 
     public String getName(){
